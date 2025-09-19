@@ -1,13 +1,13 @@
-import buildApp from "./app";
+import buildApp from './app';
 
 async function start() {
   const fastify = await buildApp({
     logger: true,
-  })
+  });
 
-  const port = fastify.config.PORT
-  const host = fastify.config.HOST
-  
+  const port = fastify.config.PORT;
+  const host = fastify.config.HOST;
+
   fastify.listen({ port, host }, (err, address) => {
     if (err) {
       console.log(err);
@@ -15,6 +15,6 @@ async function start() {
     }
     console.log(`Server listening at ${address}`);
   });
-} 
+}
 
 void start();
