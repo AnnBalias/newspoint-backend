@@ -32,7 +32,7 @@ export async function getFeedDataRoutes(fastify: FastifyInstance) {
               )
             );
         }
-        
+
         const feedData = {
           feeds: [],
           total: 0,
