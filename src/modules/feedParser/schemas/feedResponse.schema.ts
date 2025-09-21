@@ -88,7 +88,7 @@ export const errorResponseSchema = {
       statusCode: { type: 'number' },
       timestamp: { type: 'string' },
     },
-    required: ['error', 'message', 'details', 'statusCode'],
+    required: ['error', 'message', 'statusCode'],
   },
   500: {
     type: 'object',

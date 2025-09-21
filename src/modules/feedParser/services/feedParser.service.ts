@@ -5,11 +5,14 @@ import type {
   ProcessedFeedData,
   ProcessedFeedItem,
 } from '../../../types/rss.types';
+import type { DatabaseService } from './database.service';
 
 export class FeedParserService {
   private parser: Parser<CustomFeed, CustomItem>;
+  private databaseService?: DatabaseService;
 
-  constructor() {
+  constructor(databaseService?: DatabaseService) {
+    this.databaseService = databaseService;
     this.parser = new Parser({
       timeout: 10000,
       headers: {
@@ -70,7 +73,7 @@ export class FeedParserService {
   public async parseFeed(url: string): Promise<ProcessedFeedData> {
     const feed = await this.parser.parseURL(url);
 
-    return {
+    const processedData: ProcessedFeedData = {
       title: feed.title || 'No title',
       description: feed.description || 'No description',
       link: feed.link || 'No link',
@@ -101,5 +104,64 @@ export class FeedParserService {
         })
       ),
     };
+
+    if (this.databaseService) {
+      try {
+        await this.databaseService.saveFeedData(processedData);
+      } catch (error) {
+        console.error('Failed to save feed data to database:', error);
+      }
+    }
+
+    return processedData;
+  }
+
+  public async getFeedData(
+    url: string,
+    force: boolean = false
+  ): Promise<ProcessedFeedData> {
+    if (force) {
+      return await this.parseFeed(url);
+    }
+
+    if (this.databaseService) {
+      try {
+        const existingFeed = await this.databaseService.getFeedByUrl(url);
+        if (existingFeed) {
+          return {
+            title: existingFeed.title,
+            description: existingFeed.description || 'No description',
+            link: existingFeed.link,
+            lastBuildDate:
+              existingFeed.lastBuildDate || new Date().toISOString(),
+            language: existingFeed.language || 'Unknown',
+            generator: existingFeed.generator || 'Unknown',
+            category: existingFeed.category || 'No category',
+            image: existingFeed.imageUrl
+              ? {
+                  url: existingFeed.imageUrl,
+                  title: existingFeed.imageTitle || '',
+                  link: existingFeed.imageLink || '',
+                }
+              : null,
+            items: existingFeed.items.map((item) => ({
+              title: item.title,
+              description: item.description || 'No description',
+              link: item.link,
+              pubDate: item.pubDate || new Date().toISOString(),
+              guid: item.guid || item.link,
+              categories: item.categories,
+              author: item.author || 'Unknown',
+              image: item.imageUrl,
+              content: item.content || 'No content',
+            })),
+          };
+        }
+      } catch (error) {
+        console.error('Failed to check database for existing feed:', error);
+      }
+    }
+
+    return await this.parseFeed(url);
   }
 }
