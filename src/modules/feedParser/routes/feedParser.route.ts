@@ -4,13 +4,20 @@ import {
   errorResponseSchema,
   feedResponseSchema,
 } from '../schemas/feedResponse.schema';
-import { getFeedByIdParamsSchema, getFeedByIdResponseSchema, notFoundResponseSchema } from '../schemas/getFeedById.schema';
+import {
+  getFeedByIdParamsSchema,
+  getFeedByIdResponseSchema,
+  notFoundResponseSchema,
+} from '../schemas/getFeedById.schema';
 import { schema } from '../schemas/getFeedData.schema';
 import { getFeedsResponseSchema } from '../schemas/getFeeds.schema';
 import { DatabaseService } from '../services/database.service';
 import { getErrorMessage } from '../services/errorHandler.service';
 import { FeedParserService } from '../services/feedParser.service';
-import { transformFeedForList, transformFeedWithItems } from '../utils/feedTransformers';
+import {
+  transformFeedForList,
+  transformFeedWithItems,
+} from '../utils/feedTransformers';
 
 export async function getFeedDataRoutes(fastify: FastifyInstance) {
   const route = fastify.withTypeProvider<JsonSchemaToTsProvider>();
@@ -31,7 +38,10 @@ export async function getFeedDataRoutes(fastify: FastifyInstance) {
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
-        const { url, force } = request.query as { url?: string; force?: string };
+        const { url, force } = request.query as {
+          url?: string;
+          force?: string;
+        };
         const feedUrl = url || fastify.config.DEFAULT_FEED_URL;
         const isForce = force === '1' || force === 'true';
 

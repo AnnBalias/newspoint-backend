@@ -8,7 +8,8 @@ export const schema = {
       url: {
         type: 'string',
         format: 'uri',
-        description: 'Feed URL to parse (optional, uses default if not provided)',
+        description:
+          'Feed URL to parse (optional, uses default if not provided)',
       },
       force: {
         type: 'string',

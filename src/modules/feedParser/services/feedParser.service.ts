@@ -116,7 +116,10 @@ export class FeedParserService {
     return processedData;
   }
 
-  public async getFeedData(url: string, force: boolean = false): Promise<ProcessedFeedData> {
+  public async getFeedData(
+    url: string,
+    force: boolean = false
+  ): Promise<ProcessedFeedData> {
     if (force) {
       return await this.parseFeed(url);
     }
@@ -129,7 +132,8 @@ export class FeedParserService {
             title: existingFeed.title,
             description: existingFeed.description || 'No description',
             link: existingFeed.link,
-            lastBuildDate: existingFeed.lastBuildDate || new Date().toISOString(),
+            lastBuildDate:
+              existingFeed.lastBuildDate || new Date().toISOString(),
             language: existingFeed.language || 'Unknown',
             generator: existingFeed.generator || 'Unknown',
             category: existingFeed.category || 'No category',

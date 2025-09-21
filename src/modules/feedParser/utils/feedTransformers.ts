@@ -54,4 +54,3 @@ export function transformFeedItem(item: FeedItem) {
     categories: item.categories,
   };
 }
-
