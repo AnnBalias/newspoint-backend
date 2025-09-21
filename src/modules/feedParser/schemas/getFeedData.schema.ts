@@ -8,7 +8,12 @@ export const schema = {
       url: {
         type: 'string',
         format: 'uri',
-        description: 'Feed URL to parse',
+        description: 'Feed URL to parse (optional, uses default if not provided)',
+      },
+      force: {
+        type: 'string',
+        enum: ['1', 'true'],
+        description: 'Force parsing without checking database (1 or true)',
       },
     },
   },

@@ -2,7 +2,6 @@ import { join } from 'node:path';
 import AutoLoad from '@fastify/autoload';
 import Fastify, { type FastifyServerOptions } from 'fastify';
 import configPlugin from './config';
-import { getFeedDataRoutes } from './modules/feedParser/routes/feedParser.route';
 
 export type AppOptions = Partial<FastifyServerOptions>;
 
@@ -41,7 +40,13 @@ async function buildApp(options: AppOptions = {}) {
   });
 
   try {
-    fastify.register(getFeedDataRoutes);
+    fastify.log.info('Starting to load routes');
+    await fastify.register(AutoLoad, {
+      dir: join(__dirname, 'routes'),
+      options: options,
+    });
+
+    fastify.log.info('Routes loaded successfully');
   } catch (error) {
     fastify.log.error('Failed to register feed parser routes:', error);
     throw error;
