@@ -1,12 +1,11 @@
 import type { JsonSchemaToTsProvider } from '@fastify/type-provider-json-schema-to-ts';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { ERROR_SCHEMAS } from '../constants/errorSchemas';
-import { feedResponseSchema } from '../schemas/feedResponse.schema';
-import { schema } from '../schemas/getFeedData.schema';
 import {
-  createErrorResponse,
-  getErrorMessage,
-} from '../services/errorHandler.service';
+  errorResponseSchema,
+  feedResponseSchema,
+} from '../schemas/feedResponse.schema';
+import { schema } from '../schemas/getFeedData.schema';
+import { getErrorMessage } from '../services/errorHandler.service';
 import { FeedParserService } from '../services/feedParser.service';
 
 export async function getFeedDataRoutes(fastify: FastifyInstance) {
@@ -20,8 +19,8 @@ export async function getFeedDataRoutes(fastify: FastifyInstance) {
         ...schema,
         response: {
           200: feedResponseSchema,
-          400: ERROR_SCHEMAS[400],
-          500: ERROR_SCHEMAS[500],
+          400: errorResponseSchema[400],
+          500: errorResponseSchema[500],
         },
       },
     },
@@ -30,26 +29,15 @@ export async function getFeedDataRoutes(fastify: FastifyInstance) {
         const { url } = request.query as { url?: string };
 
         if (!url) {
-          return reply
-            .status(400)
-            .send(createErrorResponse(400, 'URL parameter is required'));
+          return reply.badRequest('URL parameter is required');
         }
 
         if (!url.startsWith('http')) {
-          return reply
-            .status(400)
-            .send(createErrorResponse(400, 'Invalid URL format'));
+          return reply.badRequest('Invalid URL format');
         }
 
         if (!feedParserService.isRssUrl(url)) {
-          return reply
-            .status(400)
-            .send(
-              createErrorResponse(
-                400,
-                'URL does not appear to be an RSS/XML feed'
-              )
-            );
+          return reply.badRequest('URL does not appear to be an RSS/XML feed');
         }
 
         const feedData = await feedParserService.parseFeed(url);
@@ -65,7 +53,7 @@ export async function getFeedDataRoutes(fastify: FastifyInstance) {
           error instanceof Error
             ? getErrorMessage(error)
             : 'Failed to retrieve feed data';
-        return reply.status(500).send(createErrorResponse(500, errorMessage));
+        return reply.internalServerError(errorMessage);
       }
     }
   );

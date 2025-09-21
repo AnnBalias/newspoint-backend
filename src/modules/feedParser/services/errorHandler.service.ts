@@ -1,25 +1,3 @@
-export interface ErrorResponse {
-  error: string;
-  message: string;
-  details: unknown[];
-  statusCode: number;
-  timestamp: string;
-}
-
-export function createErrorResponse(
-  statusCode: 400 | 500,
-  message: string,
-  details: unknown[] = []
-): ErrorResponse {
-  return {
-    error: statusCode === 400 ? 'Validation Error' : 'Feed Processing Error',
-    message,
-    details,
-    statusCode,
-    timestamp: new Date().toISOString(),
-  };
-}
-
 export function getErrorMessage(error: Error): string {
   const message = error.message;
 
