@@ -7,12 +7,20 @@ import { getFeedDataRoutes } from './modules/feedParser/routes/feedParser.route'
 export type AppOptions = Partial<FastifyServerOptions>;
 
 async function buildApp(options: AppOptions = {}) {
-  const fastify = Fastify({ logger: true });
-  await fastify.register(configPlugin);
+  const fastify = Fastify({
+    logger: true,
+  });
+
+  try {
+    await fastify.register(configPlugin);
+  } catch (error) {
+    fastify.log.error('Failed to register config plugin:', error);
+    throw error;
+  }
 
   try {
     fastify.decorate('pluginLoaded', (pluginName: string) => {
-      fastify.log.info(`✅ Plugin loaded: ${pluginName}`);
+      fastify.log.info(`Plugin loaded: ${pluginName}`);
     });
 
     fastify.log.info('Starting to load plugins');
@@ -22,7 +30,7 @@ async function buildApp(options: AppOptions = {}) {
       ignorePattern: /^((?!plugin).)*$/,
     });
 
-    fastify.log.info('✅ Plugins loaded successfully');
+    fastify.log.info('Plugins loaded successfully');
   } catch (error) {
     fastify.log.error('Error in autoload:', error);
     throw error;
@@ -32,7 +40,12 @@ async function buildApp(options: AppOptions = {}) {
     return { hello: 'world' };
   });
 
-  fastify.register(getFeedDataRoutes);
+  try {
+    fastify.register(getFeedDataRoutes);
+  } catch (error) {
+    fastify.log.error('Failed to register feed parser routes:', error);
+    throw error;
+  }
 
   return fastify;
 }
